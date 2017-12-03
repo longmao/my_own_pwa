@@ -18,6 +18,8 @@
   //To update network status
   function updateNetworkStatus() {
     if (navigator.onLine) {
+
+      toast('App is online now!');
       metaTagTheme.setAttribute('content', '#0288d1');
       headerElement.classList.remove('app__offline');
       fetchGitUserInfo(localStorage.getItem('request')); //Fetch github users data
