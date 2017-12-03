@@ -149,7 +149,7 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
   navigator.serviceWorker.register('sw.js')
   .then(function(swReg) {
     console.log('Service Worker is registered', swReg);
-    checkForPageUpdate(registration); // To check if new content is updated or not
+    checkForPageUpdate(swReg); // To check if new content is updated or not
 
     swRegistration = swReg;
     initialiseUI();
