@@ -20,6 +20,53 @@
 /* eslint-env browser, serviceworker, es6 */
 
 'use strict';
+importScripts('./cache-polyfill.js');
+
+var cacheName = 'cache-v4';
+
+//Files to save in cache
+var files = [
+  './',
+  './index.html?utm=homescreen', //SW treats query string as new request
+  'https://fonts.googleapis.com/css?family=Roboto:200,300,400,500,700', //caching 3rd party content
+  './css/styles.css',
+  './images/icons/android-chrome-192x192.png',
+  './images/push-on.png',
+  './images/push-off.png',
+  './images/icons/favicon-16x16.png',
+  './images/icons/favicon-32x32.png',
+  './js/main.js',
+  './js/app.js',
+  './js/offline.js',
+  './js/push.js',
+  './js/sync.js',
+  './js/toast.js',
+  './js/share.js',
+  './js/menu.js',
+  './manifest.json'
+];
+
+//Adding `install` event listener
+self.addEventListener('install', (event) => {
+  console.info('Event: Install');
+
+  event.waitUntil(
+    caches.open(cacheName)
+    .then((cache) => {
+      //[] of files to cache & if any of the file not present `addAll` will fail
+      return cache.addAll(files)
+      .then(() => {
+        console.info('All files are cached');
+        return self.skipWaiting(); //To forces the waiting service worker to become the active service worker
+      })
+      .catch((error) =>  {
+        console.error('Failed to cache', error);
+      })
+    })
+  );
+});
+
+
 
 /* eslint-disable max-len */
 
@@ -95,13 +142,6 @@ self.addEventListener('fetch', (event) => {
         return response;
       }
 
-      // // Checking for navigation preload response
-      // if (event.preloadResponse) {
-      //   console.info('Using navigation preload');
-      //   return response;
-      // }
-
-      //if request is not cached or navigation preload response, add it to cache
       return fetch(request).then((response) => {
         var responseToCache = response.clone();
         caches.open(cacheName).then((cache) => {
