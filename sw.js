@@ -129,10 +129,42 @@ self.addEventListener('pushsubscriptionchange', function(event) {
 });
 
 
-self.addEventListener('activate', function(event) {
-    event.waitUntil(self.clients.claim()); // Become available to all pages
-});
+//Adding `activate` event listener
+self.addEventListener('activate', (event) => {
+  console.info('Event: Activate');
 
+  //Navigation preload is help us make parallel request while service worker is booting up.
+  //Enable - chrome://flags/#enable-service-worker-navigation-preload
+  //Support - Chrome 57 beta (behing the flag)
+  //More info - https://developers.google.com/web/updates/2017/02/navigation-preload#the-problem
+
+  // Check if navigationPreload is supported or not
+  // if (self.registration.navigationPreload) { 
+  //   self.registration.navigationPreload.enable();
+  // }
+  // else if (!self.registration.navigationPreload) { 
+  //   console.info('Your browser does not support navigation preload.');
+  // }
+
+  //Remove old and unwanted caches
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== cacheName) {
+            return caches.delete(cache); //Deleting the old cache (cache v1)
+          }
+        })
+      );
+    })
+    .then(function () {
+      console.info("Old caches are cleared!");
+      // To tell the service worker to activate current one 
+      // instead of waiting for the old one to finish.
+      return self.clients.claim(); 
+    }) 
+  );
+});
 
 
 //Adding `fetch` event listener
