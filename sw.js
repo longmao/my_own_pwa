@@ -45,10 +45,10 @@ var files = [
   './js/menu.js',
   './manifest.json'
 ];
-
 //Adding `install` event listener
 self.addEventListener('install', (event) => {
   console.info('Event: Install');
+    event.waitUntil(self.skipWaiting()); // Activate worker immediately
 
   event.waitUntil(
     caches.open(cacheName)
@@ -127,6 +127,12 @@ self.addEventListener('pushsubscriptionchange', function(event) {
     })
   );
 });
+
+
+self.addEventListener('activate', function(event) {
+    event.waitUntil(self.clients.claim()); // Become available to all pages
+});
+
 
 
 //Adding `fetch` event listener
